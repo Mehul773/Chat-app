@@ -5,18 +5,17 @@
 * {
   font-family: "Wix Madefor Text", sans-serif;
   font-weight: 600;
-  color: rgb(255 255 255);
 }
 body{
   background-color: #101826
 }
 
-button {
+.myBtn{
   @apply bg-myBlue w-full rounded-2xl  py-2 px-5 text-lg hover:transition-all hover:scale-95 duration-100;
 }
 
 input[type="text"],
 input[type="password"],
 input[type="email"] {
-  @apply w-full border  rounded-xl py-2 px-4;
+  @apply w-full border  rounded-xl py-2 px-4 text-black;
 }
