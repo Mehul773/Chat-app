@@ -1,14 +1,22 @@
 import axios from "axios";
-import React from "react";
+import React, { useContext } from "react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { UserContext } from "../component/UserContext";
 
 function RegisterPage() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const {ready,user} = useContext(UserContext);
+
+  if(user)
+  {
+    return <Navigate to={'/chat'}/>
+  }
+
 
   async function registerUser(ev) {
     ev.preventDefault();
@@ -32,7 +40,7 @@ function RegisterPage() {
   return (
     <>
       <ToastContainer />
-      <div className="flex justify-center items-center h-screen ">
+      <div className="flex justify-center items-center h-[44rem] ">
         <div className="bg-secondary px-10 py-6  rounded-2xl w-[450px] ">
           <form
             onSubmit={registerUser}

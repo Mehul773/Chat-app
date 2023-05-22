@@ -5,11 +5,14 @@ require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const user = require("./models/User");
 const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
+const User = require("./models/User");
 
-//--------------------------------------
+//--------------------------------------------------------------------------
 const app = express();
 app.listen(4001);
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(
   cors({
@@ -21,8 +24,10 @@ app.use(
 mongoose.connect(process.env.MONGOURL);
 const bcryptSalt = bcrypt.genSaltSync(10);
 
-//--------------------------------------
+//---------------------------------------------------------------------------
+// functions
 
+//----------------------------------------------------------------------------
 //Register
 app.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
@@ -32,7 +37,7 @@ app.post("/register", async (req, res) => {
       email,
       password: bcrypt.hashSync(password, bcryptSalt),
     });
-    res.json({userDoc,message:'register successfull'});
+    res.json({ userDoc, message: "register successfull" });
   } catch (e) {
     console.log(e + " -> From index.js");
     res.status(422).json(e);
@@ -58,7 +63,7 @@ app.post("/login", async (req, res) => {
               expires: new Date(Date.now() + 86400000),
               httpOnly: true,
             })
-            .json({userDoc,message:'pass ok'});
+            .json({ userDoc, message: "pass ok" });
         }
       );
     } else {
@@ -68,3 +73,23 @@ app.post("/login", async (req, res) => {
     res.json({ message: "not found" });
   }
 });
+
+//For userContextProvider
+app.get("/getUserDetails", (req, res) => {
+  const { token } = req.cookies;
+  if (token) {
+    jwt.verify(token, process.env.JWT_SECRET, {}, async (err, userData) => {
+      if (err) throw err;
+      const { name, email, _id } = await User.findById(userData.id);
+      res.json({ name, email, _id });
+    });
+  } else {
+    return res.json(null);
+  }
+});
+
+//Logout
+app.post('/logout',(req,res)=>{
+  res.clearCookie('token').json('clear cookie')
+
+})

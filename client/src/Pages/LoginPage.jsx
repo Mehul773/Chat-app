@@ -1,12 +1,21 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import {UserContext} from "../component/UserContext";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [redirect,setRedirect] = useState(false);
+
+  const {ready,user,setUser} = useContext(UserContext);
+
+  if(user || redirect)
+  {
+    return <Navigate to={'/chat'}/>
+  }
 
   async function userLogin(ev) {
     ev.preventDefault();
@@ -25,6 +34,11 @@ function LoginPage() {
         if(data.message==="pass ok")
         {
           toast.success('Login successfull')
+          console.log(data);
+          console.log(data.userDoc);
+          setUser(data.userDoc.name)
+          console.log(user);
+          setRedirect(true);
         }
         if(data.message==='pass not ok')
         {
@@ -45,7 +59,7 @@ function LoginPage() {
     <>
       <ToastContainer />
       <form onSubmit={userLogin}>
-        <div className="flex justify-center items-center h-screen ">
+        <div className="flex justify-center items-center h-[44rem] ">
           <div className="bg-secondary px-10 py-6  rounded-2xl w-[450px] flex flex-col gap-3 justify-center items-center">
             <div className="text-3xl text-white">Login</div>
             <div className=" w-full text-white flex flex-col gap-2">
