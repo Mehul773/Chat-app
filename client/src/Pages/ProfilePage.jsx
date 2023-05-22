@@ -2,15 +2,30 @@ import React, { useContext, useState } from "react";
 import { UserContext } from "../component/UserContext";
 import axios from "axios";
 import { Navigate } from "react-router-dom";
+import PhotoUploader from "../component/PhotoUploader";
 
 function ProfilePage() {
   const { user, ready, setUser } = useContext(UserContext);
   const [redirect, setRedirect] = useState(null);
+  const [userPhoto,setUserPhoto] = useState('');
 
+  async function logoutHandel(ev) {
+    ev.preventDefault();
+    await axios.post("/logout");
+    setRedirect("/");
+    setUser(null);
+  }
+  if (redirect) {
+    return <Navigate to={redirect} />;
+  }
+  // loading
   if (!ready) {
     return (
       <>
-        <div role="status" className="w-full flex justify-center items-center h-screen">
+        <div
+          role="status"
+          className="w-full flex justify-center items-center h-screen"
+        >
           <svg
             aria-hidden="true"
             className="w-10 h-10 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
@@ -32,27 +47,12 @@ function ProfilePage() {
       </>
     );
   }
-  async function logoutHandel(ev) {
-    ev.preventDefault();
-    await axios.post("/logout");
-    setRedirect("/");
-    setUser(null);
-  }
-  if (redirect) {
-    return <Navigate to={redirect} />;
-  }
 
   return (
     <>
       <div className="flex justify-center items-center h-[40rem]">
         <div className="inline-flex p-7 rounded-lg  shadow-md shadow-indigo-500/50 text-white bg-secondary m-auto w-fit flex-col gap-4 justify-center items-center">
-          <div>
-            <img
-              src="https://assets.leetcode.com/users/avatars/avatar_1683605796.png"
-              alt=""
-              className="rounded-full object-cover aspect-square h-[13rem] "
-            />
-          </div>
+          <PhotoUploader/>
           <div>{user.name}</div>
           <div>{user.email}</div>
           <button className="myBtn" onClick={logoutHandel}>

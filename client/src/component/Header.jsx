@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
+import * as myConst from "../myConst";
 import { UserContext } from "./UserContext";
 
 function Header() {
@@ -8,7 +9,7 @@ function Header() {
   if (!ready) {
     return null; // Render nothing until the user data is ready
   }
-  
+
   return (
     <div>
       <header className="flex justify-between items-center bg-[#1E2837] p-5 text-2xl">
@@ -32,7 +33,7 @@ function Header() {
           </svg>
           QuickChat
         </Link>
-        {!user  && (
+        {!user && (
           <>
             <div className="flex gap-4 mx-7">
               <Link
@@ -50,12 +51,41 @@ function Header() {
             </div>
           </>
         )}
-        {user &&(<>
-          <div className="flex gap-4 items-center justify-center border  border-gray-400  py-1 px-2 rounded-full">
-            <img className="rounded-3xl h-12" src="https://assets.leetcode.com/users/avatars/avatar_1683605796.png"  />
-            <Link to={'/profile'} className="text-white pr-4">{user.name}</Link>
-          </div>
-        </>)}
+        {user && (
+          <>
+            <Link to={"/profile"} className="cursor-pointer flex gap-4 items-center justify-center border  border-gray-400  py-1 px-2 rounded-full">
+              {!!user.photo && (
+                <>
+                  <img
+                    className=" aspect-square object-cover rounded-full max-h-[3rem]"
+                    src={myConst.BACKEND_URL + "uploads/" + user.photo}
+                  />
+                </>
+              )}
+              {!user.photo && (
+                <>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="Blue"
+                    className=" rounded-full w-10 h-10"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                </>
+              )}
+              <div  className="text-white pr-4">
+                {user.name}
+              </div>
+            </Link>
+          </>
+        )}
       </header>
     </div>
   );

@@ -7,12 +7,16 @@ const user = require("./models/User");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const User = require("./models/User");
+const multer = require("multer");
+const { v4: uuidv4 } = require('uuid');
+let path = require('path');
 
 //--------------------------------------------------------------------------
 const app = express();
 app.listen(4001);
 app.use(express.json());
 app.use(cookieParser());
+app.use("/uploads", express.static(__dirname + "/uploads"));
 
 app.use(
   cors({
@@ -36,6 +40,7 @@ app.post("/register", async (req, res) => {
       name,
       email,
       password: bcrypt.hashSync(password, bcryptSalt),
+      photo:'',
     });
     res.json({ userDoc, message: "register successfull" });
   } catch (e) {
@@ -80,8 +85,8 @@ app.get("/getUserDetails", (req, res) => {
   if (token) {
     jwt.verify(token, process.env.JWT_SECRET, {}, async (err, userData) => {
       if (err) throw err;
-      const { name, email, _id } = await User.findById(userData.id);
-      res.json({ name, email, _id });
+      const { name, email, _id ,photo} = await User.findById(userData.id);
+      res.json({ name, email, _id ,photo});
     });
   } else {
     return res.json(null);
@@ -89,7 +94,47 @@ app.get("/getUserDetails", (req, res) => {
 });
 
 //Logout
-app.post('/logout',(req,res)=>{
-  res.clearCookie('token').json('clear cookie')
+app.post("/logout", (req, res) => {
+  res.clearCookie("token").json("clear cookie");
+});
+
+//User profile photo upload
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+      cb(null, 'uploads');
+  },
+  filename: function(req, file, cb) {   
+      cb(null, uuidv4() + '-' + Date.now() + path.extname(file.originalname));
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  const allowedFileTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+  if(allowedFileTypes.includes(file.mimetype)) {
+      cb(null, true);
+  } else {
+      cb(null, false);
+  }
+}
+
+let upload = multer({ storage, fileFilter });
+app.put('/user-photo-upload',upload.single('photo'),(req,res)=>{
+  const photo = req.file.filename;
+  const { token } = req.cookies;
+
+  if (token) {
+    jwt.verify(token, process.env.JWT_SECRET, {}, async (err, userData) => {
+      if (err) throw err;
+      const userDoc = await User.findById(userData.id);
+      userDoc.set({
+        photo,
+      })
+      await userDoc.save();
+      res.json('Photo uploaded');
+    });
+  } else {
+    return res.json("Upload failed");
+  }
+
 
 })
