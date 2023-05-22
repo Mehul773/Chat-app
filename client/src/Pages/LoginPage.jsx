@@ -10,7 +10,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [redirect,setRedirect] = useState(false);
 
-  const {ready,user,setUser} = useContext(UserContext);
+  const {user ,setUser ,ready} = useContext(UserContext)
 
   if(user || redirect)
   {
@@ -36,7 +36,7 @@ function LoginPage() {
           toast.success('Login successfull')
           console.log(data);
           console.log(data.userDoc);
-          setUser(data.userDoc.name)
+          setUser(data.userDoc)
           console.log(user);
           setRedirect(true);
         }

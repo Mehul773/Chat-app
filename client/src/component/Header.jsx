@@ -33,7 +33,11 @@ function Header() {
           </svg>
           QuickChat
         </Link>
-        {!user && (
+        <div className="text-white flex justify-center items-center gap-6 ">
+          <Link to={'/chat'} className="text-myBlue text-3xl hover:opacity-90 cursor-pointer">
+          Chat
+          </Link>
+          {!user && (
           <>
             <div className="flex gap-4 mx-7">
               <Link
@@ -86,6 +90,8 @@ function Header() {
             </Link>
           </>
         )}
+        </div>
+        
       </header>
     </div>
   );

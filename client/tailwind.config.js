@@ -10,6 +10,7 @@ export default {
         primary: '#ff7900',
         secondary: '#1E2936',
         myBlue: '#2463EA',
+        leftnav:'#364150',
       }
     },
   },
