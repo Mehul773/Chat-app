@@ -6,6 +6,8 @@ export const UserContext = createContext({});
 export function UserContextProvider({ children }) {
   const [user, setUser] = useState(null);
   const [ready, setReady] = useState(false);
+  const [ws, setWs] = useState(null);
+
 
   useEffect(() => {
     if (!user) {
@@ -17,7 +19,7 @@ export function UserContextProvider({ children }) {
   }, []);
    // Reload whenever the user data changes
   return (
-    <UserContext.Provider value={{ user, setUser, ready }}>
+    <UserContext.Provider value={{ user, setUser, ready ,ws, setWs }}>
       {children}
     </UserContext.Provider>
   );

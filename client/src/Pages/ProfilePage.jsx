@@ -5,7 +5,7 @@ import { Navigate } from "react-router-dom";
 import PhotoUploader from "../component/PhotoUploader";
 
 function ProfilePage() {
-  const { user, ready, setUser } = useContext(UserContext);
+  const { user, ready, setUser,ws, setWs } = useContext(UserContext);
   const [redirect, setRedirect] = useState(null);
   const [userPhoto,setUserPhoto] = useState('');
 
@@ -14,6 +14,7 @@ function ProfilePage() {
     await axios.post("/logout");
     setRedirect("/");
     setUser(null);
+    setWs(null);
   }
   if (redirect) {
     return <Navigate to={redirect} />;

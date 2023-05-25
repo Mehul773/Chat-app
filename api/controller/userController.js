@@ -91,7 +91,6 @@ async function getUserDataFromRequest(req) {
 //Logout
 const userLogout = (req, res) => {
   res.clearCookie("token").json("clear cookie");
-  setWs(null);
   const { token } = req.cookies;
   if (token) {
     jwt.verify(token, process.env.JWT_SECRET, {}, async (err, userData) => {

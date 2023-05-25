@@ -8,8 +8,7 @@ import axios from "axios";
 import Contact from "../component/Contact";
 
 function ChatPage() {
-  const { user, setReady, ready } = useContext(UserContext);
-  const [ws, setWs] = useState(null);
+  const { user, setReady, ready ,ws, setWs } = useContext(UserContext);
   const [onlinePeople, setOnlinePeople] = useState({});
   const [selectedUserId, setSelectedUserID] = useState(null);
   const [newMessageText, setNewMessageText] = useState("");
