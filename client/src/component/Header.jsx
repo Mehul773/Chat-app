@@ -7,7 +7,9 @@ function Header() {
   const { user, ready } = useContext(UserContext);
 
   if (!ready) {
-    return null; // Render nothing until the user data is ready
+    // setTimeout(() => {
+      return null; // Render nothing until the user data is ready
+    // }, 2000);
   }
 
   return (

@@ -1,6 +1,7 @@
 require("dotenv").config();
 const bcrypt = require("bcryptjs");
-const user = require("../models/User");
+const User = require("../models/User");
+const Message = require("../models/Message");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
@@ -14,7 +15,7 @@ const bcryptSalt = bcrypt.genSaltSync(10);
 const userRegister = async (req, res) => {
   const { name, email, password } = req.body;
   try {
-    const userDoc = await user.create({
+    const userDoc = await User.create({
       name,
       email,
       password: bcrypt.hashSync(password, bcryptSalt),
@@ -30,7 +31,7 @@ const userRegister = async (req, res) => {
 //Login
 const userLogin = async (req, res) => {
   const { email, password } = req.body;
-  const userDoc = await user.findOne({ email });
+  const userDoc = await User.findOne({ email });
   if (userDoc) {
     const passOk = bcrypt.compareSync(password, userDoc.password);
     if (passOk) {
@@ -58,12 +59,12 @@ const userLogin = async (req, res) => {
 };
 
 //For userContextProvider
-const userContextProvider = async(req, res) => {
+const userContextProvider = async (req, res) => {
   const { token } = req.cookies;
   if (token) {
     jwt.verify(token, process.env.JWT_SECRET, {}, async (err, userData) => {
       if (err) throw err;
-      const { name, email, _id, photo } = await user.findById(userData.id);
+      const { name, email, _id, photo } = await User.findById(userData.id);
       res.json({ name, email, _id, photo });
     });
   } else {
@@ -71,17 +72,58 @@ const userContextProvider = async(req, res) => {
   }
 };
 
+// Function -> Get user data from token -> return userData
+async function getUserDataFromRequest(req) {
+  return new Promise((resolve, reject) => {
+    //function ma callback function vaparavu hoi to tene Promise ma nakhavu pade
+    const { token } = req.cookies;
+    if (token) {
+      jwt.verify(token, process.env.JWT_SECRET, {}, async (err, userData) => {
+        if (err) throw err;
+        resolve(userData);
+      });
+    } else {
+      reject("no token");
+    }
+  });
+}
+
 //Logout
 const userLogout = (req, res) => {
   res.clearCookie("token").json("clear cookie");
+  setWs(null);
+  const { token } = req.cookies;
+  if (token) {
+    jwt.verify(token, process.env.JWT_SECRET, {}, async (err, userData) => {
+      if (err) throw err;
+    });
+  } else {
+    return res.json(null);
+  }
 };
 
+//get message of selected user
+const getUserMessage = async (req, res) => {
+  const { userId } = req.params;
+  const userData = await getUserDataFromRequest(req);
+  const ourUserId = userData.id;
+  const messages = await Message.find({
+    sender: { $in: [userId, ourUserId] },
+    recipient: { $in: [userId, ourUserId] },
+  }).sort({ createsAt: 1 });
+  res.json(messages);
+};
 
-
+const getAllPeople = async (req, res) => {
+  const users = await User.find({},{'_id':1,name:1})
+  res.json(users);
+}
 
 module.exports = {
   userLogout,
   userContextProvider,
   userLogin,
   userRegister,
+  getUserMessage,
+  getAllPeople,
 };
