@@ -1,0 +1,3 @@
+attrib +h +s +r foldername //hide folder
+netsh wlan show profile //atyar sudhina connected wifi name batave
+netsh wlan show profile "wifi name" key=clear //key content ma password batave

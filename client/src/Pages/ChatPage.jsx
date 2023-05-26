@@ -8,7 +8,7 @@ import axios from "axios";
 import Contact from "../component/Contact";
 
 function ChatPage() {
-  const { user, setReady, ready ,ws, setWs } = useContext(UserContext);
+  const { user, ws, setWs } = useContext(UserContext);
   const [onlinePeople, setOnlinePeople] = useState({});
   const [selectedUserId, setSelectedUserID] = useState(null);
   const [newMessageText, setNewMessageText] = useState("");
@@ -61,30 +61,51 @@ function ChatPage() {
       showOnlinePeople(messageData.online);
     } else if ("text" in messageData) {
       console.log({ messageData });
-      setMessages((prev) => [...prev, { ...messageData }]);
+      // if(messageData.sender === selectedUserId){
+
+        setMessages((prev) => [...prev, { ...messageData }]);
+      // }
     }
   }
 
-  function sendMessage(ev) {
-    ev.preventDefault();
+  function sendMessage(ev, file = null) {
+    if (ev) ev.preventDefault();
     ws.send(
       JSON.stringify({
         recipient: selectedUserId,
         text: newMessageText,
+        file,
       })
     ); //convert into string
-    setMessages((prev) => [
-      ...prev,
-      {
-        text: newMessageText,
-        sender: user._id,
-        recipient: selectedUserId,
-        _id: Date.now(),
-      },
-    ]);
-    setNewMessageText("");
+
+    if (file) {
+      axios.get("/messages/" + selectedUserId).then((res) => {
+        setMessages(res.data);
+      });
+    } else {
+      setNewMessageText("");
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: newMessageText,
+          sender: user._id,
+          recipient: selectedUserId,
+          _id: Date.now(),
+        },
+      ]);
+    }
   }
 
+  function sendFile(ev) {
+    const reader = new FileReader();
+    reader.readAsDataURL(ev.target.files[0]);
+    reader.onload = () => {
+      sendMessage(null, {
+        name: ev.target.files[0].name,
+        data: reader.result,
+      });
+    };
+  }
   if (!!user) {
     useEffect(() => {
       axios.get("/people").then((res) => {
@@ -121,7 +142,7 @@ function ChatPage() {
           {Object.keys(onlinePeopleExcluOurUser).map((userId) => (
             <>
               <Contact
-              key={userId}
+                key={userId}
                 userId={userId}
                 username={onlinePeopleExcluOurUser[userId]}
                 onClick={() => setSelectedUserID(userId)}
@@ -133,7 +154,7 @@ function ChatPage() {
           {Object.keys(offlinePeople).map((userId) => (
             <>
               <Contact
-              key={userId}
+                key={userId}
                 userId={userId}
                 username={offlinePeople[userId].name}
                 onClick={() => setSelectedUserID(userId)}
@@ -174,6 +195,37 @@ function ChatPage() {
                         }
                       >
                         {message.text}
+                        {message.file && (
+                          <>
+                            <a
+                              className="underline "
+                              target="_blank"
+                              href={
+                                axios.defaults.baseURL +
+                                "uploadsUserFiles/" +
+                                message.file
+                              }
+                            >
+                              <div className="flex gap-2  items-center justify-center">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={1.5}
+                                  stroke="currentColor"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13"
+                                  />
+                                </svg>
+                                {message.file}
+                              </div>
+                            </a>
+                          </>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -192,11 +244,31 @@ function ChatPage() {
                     setNewMessageText(ev.target.value);
                   }}
                   placeholder="Say hii..."
-                  className="w-11/12 "
+                  className="w-10/12 "
                 />
+                <label
+                  type="button"
+                  className="bg-cyan-400 w-1/12 cursor-pointer rounded-xl flex justify-center items-center hover:scale-95 hover:transition-all hover:duration-150"
+                >
+                  <input type="file" className="hidden" onChange={sendFile} />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13"
+                    />
+                  </svg>
+                </label>
                 <button
                   type="submit"
-                  className="bg-myBlue w-1/12 rounded-xl flex justify-center items-center hover:scale-95 hover:transition-all hover:duration-150"
+                  className="bg-cyan-400 w-1/12 rounded-xl flex justify-center items-center hover:scale-95 hover:transition-all hover:duration-150"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

@@ -1,0 +1,13 @@
+u«Zµìmþ™ZŠvÚ±î¸git init
+git add .
+git commit -m "msg"
+git remote add origin link
+git push origin master
+
+
+git init
+git add .
+git remote add origin https://github.com/Zeeltech/PAR-ApproveinWeb-.git
+git pull origin master
+
+http://Zeel:QIc0bdPhwNL5D61O@cluster0.jth7caz.mongodb.net/test
